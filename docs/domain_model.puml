@@ -1,0 +1,147 @@
+@startuml
+'skinparam monochrome true
+'skinparam packageStyle rectangle
+'skinparam shadowing false
+skinparam linetype ortho
+'left to right direction
+'skinparam classAttributeIconSize 0
+'hide circle
+hide methods
+
+class Port_Authority_Officer {
+    - officerID: String
+    - name: String
+}
+
+class Vessel_Type {
+    - name: String
+    - description: String
+    - capacity: Integer
+    ' operational constraints
+    - maxRows: Integer
+    - maxBays: Integer
+    - maxTiers: Integer
+}
+
+class Vessel_Record {
+    - IMOnumber: String 'seven digits + check digit'
+    - vesselName: String
+    - vesselType: Vessel_Type
+    - operator: Shipping_Agent_Organization
+}
+
+class Dock_Record {
+    - dockID: String
+    - name: String 'can be number'
+    - locationInPort: String
+    ' physical characteristics
+    - length: Float
+    - depth: Float
+    - maxDraft: Float
+    - allowedVesselTypes : Vessel_Type
+}
+
+class Storage_Area {
+    - storageID: String
+    - type : String 'e.g., yard, warehouse'
+    - locationInPort: String
+    - maxCapacity: Integer 'in TEUs'
+    - currentOccupancy: Integer 'in TEUs'
+}
+
+class Storage_Dock {
+    - dockID: String
+    - storageID: String
+    - distance: Float 'in meters'
+}
+
+class Shipping_Agent_Representative {
+    - citizenID: String
+    - name: String
+    - nationality: String
+    - phoneNumber: String
+    - email: String
+}
+
+class Shipping_Agent_Organization{
+    - organizationID: String
+    - legalName: String
+    - alternativeName: String
+    - address: String
+    - taxNumber: String
+    - representative: Shipping_Agent_Representative
+}
+
+class Crew_Member{
+    - name: String
+    - citizenID: String
+    - nationality: String
+}
+
+class Vessel_Visit_Notification{
+    - notificationID: String
+    - cargoManifestData: String 'ISO 6346:2022 standard'
+    - status: String 'in progress, approval pending, approved with current dock assignment, rejected with reason'
+    - vessel: Vessel_Record
+    - representative: Shipping_Agent_Representative
+    - time: DateTime
+    - crew: Crew_Member
+}
+
+class Notification_Decision {
+    - notificationID: String
+    - officerID: String
+    - decisionOutcome: String 'approved, rejected'
+    - temporaryDock: Dock_Record 'if approved'
+    - reason: String 'if rejected'
+    - timestamp: DateTime
+}
+
+class Staff_Member{
+    - staffID: String 'mecanographic number'
+    - shortName: String
+    - qualification: Qualification
+    - email: String
+    - phoneNumber: String
+    - operationalWindow: Operational_Window
+    - currentStatus: String 'available, unavailable'
+}
+
+class Resource{
+    - resourceID: String 'alpha-numeric code'
+    - type: String 'e.g., crane, forklift, trucks'
+    - status: String 'available, in-use, under-maintenance, decommissioned'
+    - description: String
+    - operationalCapacity: String
+    - availabilityStatus: String 'active, inactive, under-maintenance'
+    - setupTime: DateTime 'minutes'
+    - staffQualificationsRequirements: Qualification
+}
+
+class Qualification{
+    - qualificationID: String
+    - name: String
+}
+
+Vessel_Record "1" --> "1" Vessel_Type
+Vessel_Record "1" --> "1" Shipping_Agent_Organization
+
+Dock_Record "1" --> "..*" Vessel_Type
+Dock_Record "1" --> "1" Storage_Dock
+Storage_Area "1" --> "1" Storage_Dock
+
+Shipping_Agent_Organization "1" --> "1.*" Shipping_Agent_Representative
+Shipping_Agent_Representative "1" --> "1" Shipping_Agent_Organization
+
+Vessel_Visit_Notification "1" --> "1.*" Crew_Member
+Vessel_Visit_Notification "1" --> "1" Vessel_Record
+Vessel_Visit_Notification "1" --> "1" Shipping_Agent_Representative
+
+Notification_Decision "1" --> "1" Port_Authority_Officer
+Notification_Decision "1" --> "1" Vessel_Visit_Notification
+
+Staff_Member "1" --> "1.*" Qualification
+
+Resource "1" --> "1.*" Qualification
+
+@enduml

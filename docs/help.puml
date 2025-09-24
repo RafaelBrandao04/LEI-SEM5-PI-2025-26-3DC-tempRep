@@ -1,0 +1,174 @@
+@startuml
+!theme plain
+
+entity Port_Authority_Officer {
+  * officerID : PK
+  --
+  name : String
+}
+
+entity Vessel_Type {
+  * vesselTypeID : PK
+  --
+  name : String
+  description : String
+  capacity : Integer
+  maxRows : Integer
+  maxBays : Integer
+  maxTiers : Integer
+}
+
+entity Shipping_Agent_Organization {
+  * organizationID : PK
+  --
+  legalName : String
+  alternativeName : String
+  address : String
+  taxNumber : String
+}
+
+entity Shipping_Agent_Representative {
+  * representativeID : PK
+  --
+  citizenID : String
+  name : String
+  nationality : String
+  phoneNumber : String
+  email : String
+  --
+  organizationID : FK
+}
+
+entity Vessel_Record {
+  * vesselID : PK
+  --
+  IMOnumber : String
+  vesselName : String
+  --
+  vesselTypeID : FK
+  organizationID : FK
+}
+
+entity Dock_Record {
+  * dockID : PK
+  --
+  name : String
+  locationInPort : String
+  length : Float
+  depth : Float
+  maxDraft : Float
+}
+
+entity Storage_Area {
+  * storageID : PK
+  --
+  type : String
+  locationInPort : String
+  maxCapacity : Integer
+  currentOccupancy : Integer
+}
+
+entity Storage_Dock {
+  * dockID : FK
+  * storageID : FK
+  --
+  distance : Float
+}
+
+entity Crew_Member {
+  * crewID : PK
+  --
+  name : String
+  citizenID : String
+  nationality : String
+  --
+  notificationID : FK
+}
+
+entity Vessel_Visit_Notification {
+  * notificationID : PK
+  --
+  cargoManifestData : String
+  status : String
+  time : DateTime
+  --
+  vesselID : FK
+  representativeID : FK
+}
+
+entity Notification_Decision {
+  * decisionID : PK
+  --
+  decisionOutcome : String
+  reason : String
+  timestamp : DateTime
+  --
+  officerID : FK
+  notificationID : FK
+  dockID : FK (nullable)
+}
+
+entity Staff_Member {
+  * staffID : PK
+  --
+  shortName : String
+  email : String
+  phoneNumber : String
+  currentStatus : String
+  --
+  operationalWindowID : FK
+}
+
+entity Operational_Window {
+  * windowID : PK
+  --
+  startTime : DateTime
+  endTime : DateTime
+  daysOfWeek : String
+}
+
+entity Qualification {
+  * qualificationID : PK
+  --
+  name : String
+}
+
+entity Staff_Qualification {
+  * staffID : FK
+  * qualificationID : FK
+}
+
+entity Resource {
+  * resourceID : PK
+  --
+  type : String
+  status : String
+  description : String
+  operationalCapacity : String
+  setupTime : Integer
+}
+
+entity Resource_Qualification {
+  * resourceID : FK
+  * qualificationID : FK
+}
+
+' --- Relationships ---
+Vessel_Record }o--|| Vessel_Type
+Vessel_Record }o--|| Shipping_Agent_Organization
+Shipping_Agent_Representative }o--|| Shipping_Agent_Organization
+Vessel_Visit_Notification }o--|| Vessel_Record
+Vessel_Visit_Notification }o--|| Shipping_Agent_Representative
+Crew_Member }o--|| Vessel_Visit_Notification
+Notification_Decision }o--|| Vessel_Visit_Notification
+Notification_Decision }o--|| Port_Authority_Officer
+Notification_Decision }o--o| Dock_Record
+Storage_Dock }o--|| Dock_Record
+Storage_Dock }o--|| Storage_Area
+Staff_Member }o--|| Operational_Window
+Staff_Qualification }o--|| Staff_Member
+Staff_Qualification }o--|| Qualification
+Resource_Qualification }o--|| Resource
+Resource_Qualification }o--|| Qualification
+
+@enduml
